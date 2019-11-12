@@ -1,10 +1,14 @@
 package com.lambdaschool.usermodel.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "roles")
-public class Role
+public class Role extends Auditable
 {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -13,6 +17,10 @@ public class Role
     @Column(nullable = false,
             unique = true)
     private String name;
+
+    @OneToMany(mappedBy = "role", cascade = CascadeType.ALL)
+    @JsonIgnoreProperties("role")
+    private List<UserRoles> userroles = new ArrayList<>();
 
     public Role()
     {
@@ -47,5 +55,13 @@ public class Role
     public void setName(String name)
     {
         this.name = name.toUpperCase();
+    }
+
+    public List<UserRoles> getUserroles() {
+        return userroles;
+    }
+
+    public void setUserroles(List<UserRoles> userroles) {
+        this.userroles = userroles;
     }
 }

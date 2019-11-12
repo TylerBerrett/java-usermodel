@@ -12,7 +12,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "users")
-public class User
+public class User extends Auditable
 {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -23,13 +23,17 @@ public class User
     private String username;
 
     @Column(nullable = false)
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY) // Makes password write only
     private String password;
 
     @Column(nullable = false,
             unique = true)
-    @Email
+    @Email //user@domain.toplevel
     private String primaryemail;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonIgnoreProperties("user")
+    private List<UserRoles> userroles = new ArrayList<>();
 
     @OneToMany(mappedBy = "user",
                cascade = CascadeType.ALL,
@@ -43,11 +47,16 @@ public class User
 
     public User(String username,
                 String password,
-                String primaryemail)
+                String primaryemail,
+                List<UserRoles> userRoles)
     {
         setUsername(username);
         setPassword(password);
         this.primaryemail = primaryemail;
+        for (UserRoles ur : userRoles) {
+            ur.setUser(this);
+        }
+        this.userroles = userRoles;
     }
 
     public long getUserid()
@@ -110,5 +119,13 @@ public class User
     public void setUseremails(List<Useremail> useremails)
     {
         this.useremails = useremails;
+    }
+
+    public List<UserRoles> getUserroles() {
+        return userroles;
+    }
+
+    public void setUserroles(List<UserRoles> userroles) {
+        this.userroles = userroles;
     }
 }
